@@ -1,0 +1,6 @@
+{
+  "name": "Rekap Keuangan",
+  "description": "Aplikasi rekap keuangan pribadi modern dengan navigasi bawah, pencatatan transaksi, dompet, analisis pengeluaran, profil Google, dan pengaturan tema terang/gelap.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
