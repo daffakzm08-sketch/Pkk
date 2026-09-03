@@ -12,12 +12,9 @@ setPersistence(auth, browserLocalPersistence).catch((err) => {
   console.warn('Could not set persistence:', err);
 });
 
-export const GOOGLE_CLIENT_ID = firebaseConfig.oAuthClientId;
-
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account',
-  client_id: GOOGLE_CLIENT_ID,
 });
 
 // Use provisioned firestore database ID or default

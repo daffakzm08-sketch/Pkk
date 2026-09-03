@@ -1,64 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useFinance } from '../context/FinanceContext';
-import { GOOGLE_CLIENT_ID } from '../lib/firebase';
 import { WalletCards, ShieldCheck, RefreshCw, Smartphone, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const LoginScreen: React.FC = () => {
-  const { loginWithGoogle, loginWithGoogleCredential, authLoading } = useFinance();
+  const { loginWithGoogle, authLoading } = useFinance();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const gsiRenderedRef = useRef(false);
-
-  // Initialize Google Identity Services (GSI) with new Client ID
-  useEffect(() => {
-    const initGsi = () => {
-      const g = (window as any).google;
-      if (g?.accounts?.id && GOOGLE_CLIENT_ID && !gsiRenderedRef.current) {
-        try {
-          g.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: async (response: any) => {
-              if (response?.credential) {
-                setIsSubmitting(true);
-                setErrorMessage(null);
-                try {
-                  await loginWithGoogleCredential(response.credential);
-                } catch (err: any) {
-                  console.error('Credential login error:', err);
-                  setErrorMessage(err?.message || 'Gagal login dengan kredensial Google.');
-                } finally {
-                  setIsSubmitting(false);
-                }
-              }
-            },
-            auto_select: false,
-            cancel_on_tap_outside: true,
-          });
-
-          const btnContainer = document.getElementById('gsi-button-container');
-          if (btnContainer) {
-            g.accounts.id.renderButton(btnContainer, {
-              theme: 'outline',
-              size: 'large',
-              type: 'standard',
-              width: btnContainer.offsetWidth || 340,
-              text: 'signin_with',
-              shape: 'rectangular',
-              logo_alignment: 'left',
-              locale: 'id',
-            });
-            gsiRenderedRef.current = true;
-          }
-        } catch (e) {
-          console.warn('GSI init notice:', e);
-        }
-      }
-    };
-
-    initGsi();
-    const timer = setTimeout(initGsi, 800);
-    return () => clearTimeout(timer);
-  }, [loginWithGoogleCredential]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -70,19 +17,7 @@ export const LoginScreen: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Login error:', err);
-      if (err?.code === 'auth/unauthorized-domain') {
-        const g = (window as any).google;
-        if (g?.accounts?.id) {
-          try {
-            g.accounts.id.prompt();
-            setErrorMessage('Meminta autentikasi melalui Google Identity Services...');
-            return;
-          } catch {}
-        }
-        setErrorMessage(
-          'Domain belum diizinkan di Firebase Console. Buka Firebase Console > Authentication > Settings > Authorized Domains dan tambahkan domain Anda.'
-        );
-      } else if (err?.code === 'auth/popup-blocked') {
+      if (err?.code === 'auth/popup-blocked') {
         setErrorMessage('Jendela pop-up Google terblokir oleh peramban. Izinkan pop-up untuk melanjutkan.');
       } else if (err?.code === 'auth/cancelled-popup-request' || err?.code === 'auth/popup-closed-by-user') {
         setErrorMessage('Proses login dibatalkan.');
@@ -174,8 +109,6 @@ export const LoginScreen: React.FC = () => {
 
         {/* Google Login Action Button */}
         <div className="pt-2 space-y-3">
-          <div id="gsi-button-container" className="w-full flex justify-center empty:hidden min-h-0"></div>
-
           <button
             id="btn-login-google"
             onClick={handleGoogleLogin}

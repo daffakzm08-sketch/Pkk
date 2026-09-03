@@ -23,8 +23,6 @@ import { getCurrentMonthKey, getIndonesianMonthName, parseMonthKey, getCurrentRe
 import { auth, googleProvider, db } from '../lib/firebase';
 import {
   signInWithPopup,
-  signInWithCredential,
-  GoogleAuthProvider,
   signOut,
   onAuthStateChanged,
 } from 'firebase/auth';
@@ -63,7 +61,6 @@ interface FinanceContextType {
   setTheme: (theme: ThemeMode) => void;
   updateAppSettings: (settings: Partial<AppSettings>) => void;
   loginWithGoogle: (customUser?: Partial<UserProfile>) => Promise<boolean>;
-  loginWithGoogleCredential: (idToken: string) => Promise<boolean>;
   logoutGoogle: () => Promise<void>;
   syncWithGoogleCloud: () => Promise<boolean>;
 
@@ -936,18 +933,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Google Login with Credential (e.g. from Google Identity Services / GSI)
-  const loginWithGoogleCredential = async (idToken: string): Promise<boolean> => {
-    try {
-      const credential = GoogleAuthProvider.credential(idToken);
-      const res = await signInWithCredential(auth, credential);
-      return !!res.user;
-    } catch (err: any) {
-      console.error('signInWithCredential failed:', err);
-      throw err;
-    }
-  };
-
   // Google Sign Out via Firebase Auth
   const logoutGoogle = async () => {
     try {
@@ -1010,7 +995,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setTheme,
         updateAppSettings,
         loginWithGoogle,
-        loginWithGoogleCredential,
         logoutGoogle,
         syncWithGoogleCloud,
 
